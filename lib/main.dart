@@ -74,6 +74,42 @@ class ShapesDemoScreen extends StatelessWidget {
                 size: const Size(double.infinity, 300),
               ),
             ),
+            const Text(
+              'Task 4: emoji',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: CustomPaint(
+                painter: Smile(),
+                size: const Size(double.infinity, 300),
+              ),
+            ),
+            const Text(
+              'Task 5: party',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: CustomPaint(
+                painter: Party(),
+                size: const Size(double.infinity, 300),
+              ),
+            ),
+            const Text(
+              'Task 6: heart',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: CustomPaint(
+                painter: Heart(),
+                size: const Size(double.infinity, 300),
+              ),
+            ),
           ],
         ),
       ),
@@ -153,7 +189,133 @@ class BasicShapesPainter extends CustomPainter {
     return false;
   }
 }
+class Smile extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
 
+    // Draw face (circle)
+    final facePaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(centerX, centerY), 80, facePaint);
+
+    // Draw eyes (two small circles)
+    final eyePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(centerX - 30, centerY - 20), 10, eyePaint);
+    canvas.drawCircle(Offset(centerX + 30, centerY - 20), 10, eyePaint);
+
+    // Draw mouth (arc)
+    final mouthPaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(centerX, centerY + 10), width: 60, height: 40),
+      0, // start angle in radians
+      pi, // sweep angle in radians (180 degrees)
+      false,
+      mouthPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+class Party extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    // Draw face using Smile painter
+    Smile().paint(canvas, size);
+
+    // Draw party hat (triangle on top of head)
+    final hatHeight = 50.0;
+    final hatWidth = 60.0;
+    final hatTop = Offset(centerX, centerY - 80 - hatHeight); // top of hat above face
+    final hatLeft = Offset(centerX - hatWidth / 2, centerY - 80);
+    final hatRight = Offset(centerX + hatWidth / 2, centerY - 80);
+
+    final hatPath = Path()
+      ..moveTo(hatTop.dx, hatTop.dy)
+      ..lineTo(hatLeft.dx, hatLeft.dy)
+      ..lineTo(hatRight.dx, hatRight.dy)
+      ..close();
+
+    final hatPaint = Paint()
+      ..color = Colors.pink
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(hatPath, hatPaint);
+
+    // Optional: Draw a circle at the tip of the hat
+    final tipPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(hatTop, 8, tipPaint);
+
+    // Draw confetti on both sides
+    final random = Random();
+    for (int i = 0; i < 15; i++) {
+      final confettiPaint = Paint()
+        ..color = Colors.primaries[random.nextInt(Colors.primaries.length)]
+        ..style = PaintingStyle.fill;
+      // Left side
+      final dxLeft = centerX - 50 - random.nextDouble() * 80;
+      final dyLeft = centerY - 50 - random.nextDouble() * 160;
+      canvas.drawRect(
+        Rect.fromCenter(center: Offset(dxLeft, dyLeft), width: 16, height: 16),
+        confettiPaint,
+      );
+      // Right side
+      final confettiPaintRight = Paint()
+        ..color = Colors.primaries[random.nextInt(Colors.primaries.length)]
+        ..style = PaintingStyle.fill;
+      final dxRight = centerX + 50 + random.nextDouble() * 80;
+      final dyRight = centerY - 50 - random.nextDouble() * 160;
+      canvas.drawRect(
+        Rect.fromCenter(center: Offset(dxRight, dyRight), width: 16, height: 16),
+        confettiPaintRight,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+class Heart extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    final heartPath = Path()
+      ..moveTo(centerX, centerY + 20)
+      ..cubicTo(centerX - 50, centerY - 30, centerX - 80, centerY + 20, centerX, centerY + 80)
+      ..cubicTo(centerX + 80, centerY + 20, centerX + 50, centerY - 30, centerX, centerY + 20)
+      ..close();
+
+    final heartPaint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(heartPath, heartPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
 class CombinedShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
