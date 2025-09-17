@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -112,6 +114,23 @@ class ShapesDemoScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class DrawEmoji extends StatelessWidget {
+  final CustomPainter painter;
+  final VoidCallback onTap;
+  const DrawEmoji({super.key, required this.painter, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: CustomPaint(
+        painter: painter,
+        size: const Size(200, 200),
       ),
     );
   }
