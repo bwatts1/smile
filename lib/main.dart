@@ -5,10 +5,8 @@ void main() {
   runApp(const ShapesDemoApp());
 }
 
-
 class ShapesDemoApp extends StatelessWidget {
   const ShapesDemoApp({super.key});
- 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,10 +19,33 @@ class ShapesDemoApp extends StatelessWidget {
     );
   }
 }
-CustomPainter? selectedPainter;
 
-class ShapesDemoScreen extends StatelessWidget {
+class ShapesDemoScreen extends StatefulWidget {
   const ShapesDemoScreen({super.key});
+
+  @override
+  State<ShapesDemoScreen> createState() => _ShapesDemoScreenState();
+}
+
+class _ShapesDemoScreenState extends State<ShapesDemoScreen> {
+  final List<Widget> paintedWidgets = [];
+  CustomPainter? selectedPainter;
+
+  void _handleTapOnCanvas(TapUpDetails details, BuildContext context) {
+    if (selectedPainter == null) return;
+
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final localPosition = box.globalToLocal(details.globalPosition);
+
+    setState(() {
+      paintedWidgets.add(
+        PositionedPainterBox(
+          position: localPosition,
+          painter: selectedPainter!,
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,81 +55,108 @@ class ShapesDemoScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Enlarged selected canvas
           Expanded(
-            child: Center(
-              child: selectedPainter != null
-                  ? CustomPaint(
-                      painter: selectedPainter,
-                      size: const Size(200, 200),
-                    )
-                  : const Text("Select a shape below"),
+            child: GestureDetector(
+              onTapUp: (details) => _handleTapOnCanvas(details, context),
+              child: Stack(
+                children: [
+                  Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.lightBlue, Colors.white],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+                ...paintedWidgets,
+                ],
+              ),
             ),
           ),
           const Divider(),
-          // Row of selectable canvases
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                DrawEmoji(
-                  painter: CirclePainter(),
-                  onTap: () {
-                    selectedPainter = CirclePainter();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: RectanglePainter(),
-                  onTap: () {
-                    selectedPainter = RectanglePainter();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: ArcPainter(),
-                  onTap: () {
-                    selectedPainter = ArcPainter();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: LinePainter(),
-                  onTap: () {
-                    selectedPainter = LinePainter();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: OvalPainter(),
-                  onTap: () {
-                    selectedPainter = OvalPainter();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: Smile(),
-                  onTap: () {
-                    selectedPainter = Smile();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: Party(),
-                  onTap: () {
-                    selectedPainter = Party();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-                DrawEmoji(
-                  painter: Heart(),
-                  onTap: () {
-                    selectedPainter = Heart();
-                    (context as Element).markNeedsBuild();
-                  },
-                ),
-              ],
+            padding: const EdgeInsets.all(15.0),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  DrawEmoji(
+                    painter: CirclePainter(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = CirclePainter();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: RectanglePainter(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = RectanglePainter();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: ArcPainter(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = ArcPainter();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: LinePainter(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = LinePainter();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: OvalPainter(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = OvalPainter();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: Smile(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = Smile();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: Party(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = Party();
+                      });
+                    },
+                  ),
+                  SizedBox(width: 15),
+                  DrawEmoji(
+                    painter: Heart(),
+                    onTap: () {
+                      setState(() {
+                        selectedPainter = Heart();
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -117,161 +165,265 @@ class ShapesDemoScreen extends StatelessWidget {
   }
 }
 
+class PositionedPainterBox extends StatelessWidget {
+  final Offset position;
+  final CustomPainter painter;
+  final Size size;
+
+  const PositionedPainterBox({
+    super.key,
+    required this.position,
+    required this.painter,
+    this.size = const Size(100, 100),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: position.dx - size.width/2,
+      top: position.dy - size.height,
+      child: CustomPaint(
+        painter: painter,
+        size: size,
+      ),
+    );
+  }
+}
+
 class DrawEmoji extends StatelessWidget {
   final CustomPainter painter;
   final VoidCallback onTap;
+
   const DrawEmoji({super.key, required this.painter, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: CustomPaint(
-        painter: painter,
-        size: const Size(200, 200),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: CustomPaint(
+          painter: painter,
+          size: const Size(60, 60),
+        ),
       ),
     );
   }
 }
 
+// ======= Shape Painters =======
+
 class CirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    final circlePaint = Paint()
+    final center = Offset(size.width / 2, size.height / 2);
+    final paint = Paint()
       ..color = Colors.blue
       ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(Offset(centerX, centerY), 50, circlePaint);
+    canvas.drawCircle(center, 30, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class RectanglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    final rectPaint = Paint()
+    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: 60, height: 40);
+    final paint = Paint()
       ..color = Colors.green
       ..style = PaintingStyle.fill;
-
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX, centerY), width: 100, height: 60),
-      rectPaint,
-    );
+    canvas.drawRect(rect, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class ArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    final arcPaint = Paint()
+    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: 60, height: 60);
+    final paint = Paint()
       ..color = Colors.red
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 5;
-
-    canvas.drawArc(
-      Rect.fromCenter(center: Offset(centerX, centerY), width: 100, height: 100),
-      0, // start angle
-      3.14, // sweep angle (half-circle)
-      false,
-      arcPaint,
-    );
+      ..strokeWidth = 4;
+    canvas.drawArc(rect, 0, pi, false, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class LinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final start = Offset(size.width / 4, size.height / 2);
-    final end = Offset(3 * size.width / 4, size.height / 2);
-
-    final linePaint = Paint()
+    final start = Offset(size.width * 0.2, size.height / 2);
+    final end = Offset(size.width * 0.8, size.height / 2);
+    final paint = Paint()
       ..color = Colors.purple
-      ..strokeWidth = 4;
-
-    canvas.drawLine(start, end, linePaint);
+      ..strokeWidth = 3;
+    canvas.drawLine(start, end, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class OvalPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    final ovalPaint = Paint()
+    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: 80, height: 40);
+    final paint = Paint()
       ..color = Colors.orange
       ..style = PaintingStyle.fill;
-
-    canvas.drawOval(
-      Rect.fromCenter(center: Offset(centerX, centerY), width: 120, height: 60),
-      ovalPaint,
-    );
+    canvas.drawOval(rect, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
 class Smile extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Face
+    final facePaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 30, facePaint);
+
+    // Eyes
+    final eyePaint = Paint()..color = Colors.black;
+    canvas.drawCircle(Offset(center.dx - 10, center.dy - 10), 4, eyePaint);
+    canvas.drawCircle(Offset(center.dx + 10, center.dy - 10), 4, eyePaint);
+
+    // Mouth
+    final mouthPaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+    final mouthRect = Rect.fromCenter(center: Offset(center.dx, center.dy + 5), width: 20, height: 10);
+    canvas.drawArc(mouthRect, 0, pi, false, mouthPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class Party extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    // Draw face (circle)
-    final facePaint = Paint()
-      ..color = Colors.yellow
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX, centerY), 80, facePaint);
+    // Draw face using Smile painter
+    Smile().paint(canvas, size);
 
-    // Draw eyes (two small circles)
-    final eyePaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX - 30, centerY - 20), 10, eyePaint);
-    canvas.drawCircle(Offset(centerX + 30, centerY - 20), 10, eyePaint);
+    // Draw party hat (directly above the face)
+    final hatHeight = 50.0;
+    final hatWidth = 40.0;
 
-    // Draw mouth (arc)
-    final mouthPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5;
-    canvas.drawArc(
-      Rect.fromCenter(center: Offset(centerX, centerY + 10), width: 60, height: 40),
-      0, // start angle in radians
-      pi, // sweep angle in radians (180 degrees)
-      false,
-      mouthPaint,
+    final faceRadius = 25.0; // assuming Smile face radius is 80
+    final hatBottomY = centerY - faceRadius;
+
+    final hatTop = Offset(centerX, hatBottomY - hatHeight); // tip of hat
+    final hatLeft = Offset(centerX - hatWidth / 2, hatBottomY);
+    final hatRight = Offset(centerX + hatWidth / 2, hatBottomY);
+
+    final hatPath = Path()
+      ..moveTo(hatTop.dx, hatTop.dy)
+      ..lineTo(hatLeft.dx, hatLeft.dy)
+      ..lineTo(hatRight.dx, hatRight.dy)
+      ..close();
+
+    final hatPaint = Paint()
+      ..color = Colors.pink
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(hatPath, hatPaint);
+
+    // Draw a blue circle at the tip of the hat
+    final tipPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(hatTop, 8, tipPaint);
+
+    // Draw fixed-position confetti (not random)
+    final confettiPaints = [
+      Paint()..color = Colors.red,
+      Paint()..color = Colors.green,
+      Paint()..color = Colors.orange,
+      Paint()..color = Colors.purple,
+      Paint()..color = Colors.yellow,
+    ];
+
+    final confettiOffsetsLeft = [
+      Offset(centerX - 40, centerY - 70),
+      Offset(centerX - 55, centerY - 50),
+      Offset(centerX - 40, centerY - 0),
+      Offset(centerX - 50, centerY - 30),
+      Offset(centerX - 40, centerY - 60),
+    ];
+
+    final confettiOffsetsRight = [
+      Offset(centerX + 40, centerY - 90),
+      Offset(centerX + 50, centerY - 70),
+      Offset(centerX + 60, centerY - 40),
+      Offset(centerX + 55, centerY - 80),
+      Offset(centerX + 40, centerY - 20),
+    ];
+
+
+    for (int i = 0; i < confettiOffsetsLeft.length; i++) {
+      canvas.drawRect(
+        Rect.fromCenter(center: confettiOffsetsLeft[i], width: 16, height: 16),
+        confettiPaints[i % confettiPaints.length],
+      );
+      canvas.drawRect(
+        Rect.fromCenter(center: confettiOffsetsRight[i], width: 16, height: 16),
+        confettiPaints[(i + 1) % confettiPaints.length],
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+
+class Heart extends CustomPainter {
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.pink
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(size.width / 2, size.height * 0.35); // Start at the top center
+
+    // Left curve
+    path.cubicTo(
+      size.width * 0.1, size.height * -0.2, // Control point 1
+      size.width * -0.2, size.height * 0.6, // Control point 2
+      size.width / 2, size.height, // End point
     );
+
+    // Right curve
+    path.cubicTo(
+      size.width * 1.2, size.height * 0.6, // Control point 1
+      size.width * 0.9, size.height * -0.2, // Control point 2
+      size.width / 2, size.height * 0.35, // End point
+    );
+
+    path.close(); // Close the path to create a filled shape
+
+    canvas.drawPath(path, paint);
   }
 
   @override
@@ -344,95 +496,6 @@ class BasicShapesPainter extends CustomPainter {
       Rect.fromCenter(center: ovalOffset, width: 80, height: 40),
       ovalPaint,
     );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
-class Party extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    // Draw face using Smile painter
-    Smile().paint(canvas, size);
-
-    // Draw party hat (triangle on top of head)
-    final hatHeight = 50.0;
-    final hatWidth = 60.0;
-    final hatTop = Offset(centerX, centerY - 80 - hatHeight); // top of hat above face
-    final hatLeft = Offset(centerX - hatWidth / 2, centerY - 80);
-    final hatRight = Offset(centerX + hatWidth / 2, centerY - 80);
-
-    final hatPath = Path()
-      ..moveTo(hatTop.dx, hatTop.dy)
-      ..lineTo(hatLeft.dx, hatLeft.dy)
-      ..lineTo(hatRight.dx, hatRight.dy)
-      ..close();
-
-    final hatPaint = Paint()
-      ..color = Colors.pink
-      ..style = PaintingStyle.fill;
-
-    canvas.drawPath(hatPath, hatPaint);
-
-    // Optional: Draw a circle at the tip of the hat
-    final tipPaint = Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(hatTop, 8, tipPaint);
-
-    // Draw confetti on both sides
-    final random = Random();
-    for (int i = 0; i < 15; i++) {
-      final confettiPaint = Paint()
-        ..color = Colors.primaries[random.nextInt(Colors.primaries.length)]
-        ..style = PaintingStyle.fill;
-      // Left side
-      final dxLeft = centerX - 50 - random.nextDouble() * 80;
-      final dyLeft = centerY - 50 - random.nextDouble() * 160;
-      canvas.drawRect(
-        Rect.fromCenter(center: Offset(dxLeft, dyLeft), width: 16, height: 16),
-        confettiPaint,
-      );
-      // Right side
-      final confettiPaintRight = Paint()
-        ..color = Colors.primaries[random.nextInt(Colors.primaries.length)]
-        ..style = PaintingStyle.fill;
-      final dxRight = centerX + 50 + random.nextDouble() * 80;
-      final dyRight = centerY - 50 - random.nextDouble() * 160;
-      canvas.drawRect(
-        Rect.fromCenter(center: Offset(dxRight, dyRight), width: 16, height: 16),
-        confettiPaintRight,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
-class Heart extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    final heartPath = Path()
-      ..moveTo(centerX, centerY + 20)
-      ..cubicTo(centerX - 50, centerY - 30, centerX - 80, centerY + 20, centerX, centerY + 80)
-      ..cubicTo(centerX + 80, centerY + 20, centerX + 50, centerY - 30, centerX, centerY + 20)
-      ..close();
-
-    final heartPaint = Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.fill;
-
-    canvas.drawPath(heartPath, heartPaint);
   }
 
   @override
