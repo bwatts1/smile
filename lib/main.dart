@@ -34,7 +34,8 @@ class _ShapesDemoScreenState extends State<ShapesDemoScreen> {
   void _handleTapOnCanvas(TapUpDetails details, BuildContext context) {
     if (selectedPainter == null) return;
 
-    final RenderBox box = context.findRenderObject() as RenderBox;
+    //reminder to self use render box to get local position from global position
+    final RenderBox box = context.findRenderObject() as RenderBox; 
     final localPosition = box.globalToLocal(details.globalPosition);
 
     setState(() {
@@ -71,7 +72,7 @@ class _ShapesDemoScreenState extends State<ShapesDemoScreen> {
                     ),
                   ),
                 ),
-                ...paintedWidgets,
+                ...paintedWidgets, // reminder this is how the saved widgets are drawn from saved list
                 ],
               ),
             ),
